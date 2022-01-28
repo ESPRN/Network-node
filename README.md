@@ -1,4 +1,4 @@
-MeshedNetwork
+Network node
 =============
 
 # ESP-NOW meshed networks

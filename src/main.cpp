@@ -58,7 +58,14 @@ void setup()
 	digitalWrite(LED_PIN_MESSAGE_RCV, LOW);
 	digitalWrite(LED_PIN_MESSAGE_SND, LOW);
 
+	NODE node_relay(CHANNEL, NODE_ID, PASS, ENCRYPTION, MAX_CONNECTIONS);
 
+	node_relay.register_send_cb(&sendFunc);
+
+	node_relay.register_recieve_cb(&recieveFunc);
+
+	Serial.print("Relaying on channel: ");
+	Serial.println(node_relay.get_channel());
 }
 
 void loop() 

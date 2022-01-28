@@ -2,13 +2,15 @@
     @ Name: ESP-NOW mashed network
     @ Author: Tevž Beškovnik
     @ Date: 17. 1. 2022
-    @ Description: Meshed network of ESP32 devices over the connectionless ESP-NOW network
+    @ Description: Meshed network of ESP32 devices over the connectionless ESP-NOW network this file is network node
     @ Notes:
         - This uses wifi routers to auto discover other devices and pair with them while this is 
           handy and good this is not the best way to discover other devices, there could be 3rd. party devices
           protending to be part of the network
         - The data that can be recieved in one message as far as i can understand can have a length from anywhere
           from 0 to 250 bytes, so we should have a very optimised way to send messages or some sort of packet method
+        - Theres a function called eps_now_set_wake_window that controlls something to do with the esp low power sleep 
+          mode need to look into that a bit further
 
 */
 
