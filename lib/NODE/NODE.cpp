@@ -106,10 +106,12 @@ bool NODE::sendData(const uint8_t* peer_addr, const uint8_t* data, uint8_t dataL
     else return false;
 }
 
-void NODE::dynamic_pair()
+bool NODE::dynamic_pair()
 {
-    if(search_for_devices())
+    bool found = search_for_devices();
+    if(found)
         Serial.println("Paired with a device / devices.");
+    return found;
 }
 
 bool NODE::search_for_devices()
@@ -126,7 +128,7 @@ bool NODE::search_for_devices()
 
     if(numOfConnections->total_num > maxConnections) return false;
 
-    if(networksFound = 0)
+    if(networksFound == 0)
     {
         Serial.println("No networks found in scan.");
     }
@@ -159,8 +161,11 @@ bool NODE::search_for_devices()
                 Serial.print(peerSSID);
                 Serial.println(" failed to complete.");
             }else{
+                // add the new node to the nodes "cache"
                 connectedNodes[numOfConnections->total_num-1].peerName = peerSSID;
                 connectedNodes[numOfConnections->total_num-1].peerInfo = *currentNode;
+                // tell the callback function that we just got a new node
+                connectionUpdate(connectedNodes[numOfConnections->total_num-1]);
                 Serial.print("Relay node ");
                 Serial.print(peerSSID);
                 Serial.println(" paired!");

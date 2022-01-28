@@ -29,7 +29,7 @@ struct node_info_s
 };
 
 // type of function pointer to update connections when new connection is made
-typedef void (*node_update_connections_cb_t)(node_info_s* nodeInfo);
+typedef void (*node_update_connections_cb_t)(node_info_s nodeInfo);
 
 class NODE{
     public:
@@ -57,7 +57,7 @@ class NODE{
         void register_recieve_cb(esp_now_recv_cb_t recieveFunc);
 
         // this should be called in the loop, basicly just looks for new nodes and adds them to the network if they are found
-        void dynamic_pair();
+        bool dynamic_pair();
 
         // send data
         bool sendData(const uint8_t* peer_addr ,const uint8_t* data, uint8_t dataLen);
