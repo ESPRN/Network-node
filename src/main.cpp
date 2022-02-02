@@ -35,6 +35,8 @@
 	#define MAX_CONNECTIONS 20
 #endif
 
+node_info_s pairedNode;
+
 void sendFunc(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
 	if(status = esp_now_send_status_t::ESP_NOW_SEND_SUCCESS)
@@ -50,6 +52,11 @@ void recieveFunc(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 	digitalWrite(LED_PIN_MESSAGE_RCV, !digitalRead(LED_PIN_MESSAGE_RCV));
 }
 
+void updateConnections(node_info_s nodeInfo)
+{
+	pairedNode = nodeInfo;
+}
+
 void setup() 
 {
 	pinMode(LED_PIN_MESSAGE_RCV, OUTPUT);
@@ -63,6 +70,8 @@ void setup()
 	node_relay.register_send_cb(&sendFunc);
 
 	node_relay.register_recieve_cb(&recieveFunc);
+
+	node_relay.update_connections_cb(&updateConnections);
 
 	Serial.print("Relaying on channel: ");
 	Serial.println(node_relay.get_channel());
