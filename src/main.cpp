@@ -37,6 +37,12 @@
 
 node_info_s pairedNode;
 
+bool paired = false;
+
+NODE node_relay(CHANNEL, NODE_ID, PASS, ENCRYPTION, MAX_CONNECTIONS);
+
+uint8_t data[4] = { 1, 2, 3, 4 };
+
 void sendFunc(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
 	if(status = esp_now_send_status_t::ESP_NOW_SEND_SUCCESS)
@@ -55,6 +61,8 @@ void recieveFunc(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 void updateConnections(node_info_s nodeInfo)
 {
 	pairedNode = nodeInfo;
+	Serial.print("Paired with new node: ");
+	Serial.println(nodeInfo.peerName);
 }
 
 void setup() 
@@ -64,8 +72,6 @@ void setup()
 
 	digitalWrite(LED_PIN_MESSAGE_RCV, LOW);
 	digitalWrite(LED_PIN_MESSAGE_SND, LOW);
-
-	NODE node_relay(CHANNEL, NODE_ID, PASS, ENCRYPTION, MAX_CONNECTIONS);
 
 	node_relay.register_send_cb(&sendFunc);
 
@@ -79,5 +85,8 @@ void setup()
 
 void loop() 
 {
-	
+	if(!paired)
+		paired = node_relay.dynamic_pair();
+	if(paired)
+		node_relay.sendData(pairedNode.peerInfo.peer_addr, data, 4);
 }
