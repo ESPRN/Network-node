@@ -1,7 +1,7 @@
 #include "NODE.h"
 
-NODE::NODE(uint8_t* pmk, const uint8_t chnannel, const char* SSID, const char* PASS, bool encrypt = false, uint8_t maxConnections)
-    :pmk(pmk), channel(channel), PASS(PASS), SSID(SSID), encrypt(encrypt), maxConnections(maxConnections)
+NODE::NODE(uint8_t* pmk, const uint8_t channel, const char* SSID, const char* PASS, bool encrypt = false, uint8_t maxConnections = 20)
+    :channel(channel), pmk(pmk), encrypt(encrypt), SSID(SSID), PASS(PASS), maxConnections(maxConnections)
 {
 	// pin for connection
 	pinMode(LED_PIN_CONNECTION, OUTPUT);
@@ -32,8 +32,8 @@ NODE::NODE(uint8_t* pmk, const uint8_t chnannel, const char* SSID, const char* P
     }
 }
 
-NODE::NODE(const uint8_t channel, const char* SSID, const char* PASS, bool encrypt = false, uint8_t maxConnections)
-    :channel(channel), PASS(PASS), SSID(SSID), encrypt(encrypt), maxConnections(maxConnections)
+NODE::NODE(const uint8_t channel, const char* SSID, const char* PASS, bool encrypt = false, uint8_t maxConnections = 20)
+    :channel(channel), pmk(0), encrypt(encrypt), SSID(SSID), PASS(PASS), maxConnections(maxConnections)
 {
     WiFi.mode(WIFI_MODE_APSTA);
 
@@ -86,7 +86,7 @@ uint8_t NODE::get_channel()
 
 bool NODE::sendData(const uint8_t* peer_addr, const uint8_t* data, uint8_t dataLen)
 {
-    if(!(dataLen < ESP_NOW_MAX_DATA_LEN) || !esp_now_is_peer_exist(peer_addr)) return;
+    if(!(dataLen < ESP_NOW_MAX_DATA_LEN) || !esp_now_is_peer_exist(peer_addr)) return false;
 
     uint8_t* cutData = (uint8_t*)malloc(dataLen*sizeof(uint8_t));
 
@@ -122,7 +122,7 @@ bool NODE::search_for_devices()
     uint8_t relaysAdded = 0;
     clear_current_node();
 
-    esp_now_peer_num_t* numOfConnections;
+    esp_now_peer_num_t* numOfConnections = 0;
 
     esp_now_get_peer_num(numOfConnections);
 

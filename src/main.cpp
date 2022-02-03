@@ -39,7 +39,7 @@ node_info_s pairedNode;
 
 bool paired = false;
 
-NODE node_relay(CHANNEL, NODE_ID, PASS, ENCRYPTION, MAX_CONNECTIONS);
+NODE node_relay((uint8_t)CHANNEL, (char*)NODE_ID, (char*)PASS, (bool)ENCRYPTION, (uint8_t)MAX_CONNECTIONS);
 
 uint8_t data[4] = { 1, 2, 3, 4 };
 
