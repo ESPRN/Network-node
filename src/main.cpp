@@ -4,6 +4,13 @@
 #include <esp_wifi.h>
 #include "../lib/NODE/NODE.h"
 
+/*
+	TODO:
+		- pPort project to ESP-IDF so i can actualy see the backtraces,
+		- write the router code,
+		- write the node manager code.
+*/
+
 // led pin on message recieve
 #define LED_PIN_MESSAGE_RCV 18
 
@@ -45,7 +52,7 @@ uint8_t data[4] = { 1, 2, 3, 4 };
 
 void sendFunc(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
-	if(status = esp_now_send_status_t::ESP_NOW_SEND_SUCCESS)
+	if(status == esp_now_send_status_t::ESP_NOW_SEND_SUCCESS)
 		Serial.println("send successful");  
 	else
 		Serial.println("send not successful"); 
@@ -73,14 +80,23 @@ void setup()
 	digitalWrite(LED_PIN_MESSAGE_RCV, LOW);
 	digitalWrite(LED_PIN_MESSAGE_SND, LOW);
 
+	Serial.begin(115200);
+
+	Serial.print("Relay node \"");
+	Serial.print(NODE_ID);
+	Serial.println("\" running...");
+	Serial.printf("Channel: %3d\n", CHANNEL);
+	Serial.printf("Encryption: %3d\n", ENCRYPTION);
+	Serial.printf("Max connections: %3d\n", MAX_CONNECTIONS);
+
 	node_relay.register_send_cb(&sendFunc);
+	Serial.println("Registered send callback");
 
 	node_relay.register_recieve_cb(&recieveFunc);
+	Serial.println("Registered recieve callback");
 
 	node_relay.update_connections_cb(&updateConnections);
-
-	Serial.print("Relaying on channel: ");
-	Serial.println(node_relay.get_channel());
+	Serial.println("Registered new connection callback");
 }
 
 void loop() 

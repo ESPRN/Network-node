@@ -108,6 +108,7 @@ bool NODE::sendData(const uint8_t* peer_addr, const uint8_t* data, uint8_t dataL
 
 bool NODE::dynamic_pair()
 {
+    Serial.println("In pairing cycle...");
     bool found = search_for_devices();
     if(found)
         Serial.println("Paired with a device / devices.");
@@ -116,8 +117,9 @@ bool NODE::dynamic_pair()
 
 bool NODE::search_for_devices()
 {
-    digitalWrite(LED_PIN_CONNECTION, LOW);
+    digitalWrite(LED_PIN_CONNECTION, !digitalRead(LED_PIN_CONNECTION));
 
+    Serial.println("About to scan the wifi networks");
     uint8_t networksFound = WiFi.scanNetworks();
     uint8_t relaysAdded = 0;
     clear_current_node();
@@ -170,7 +172,6 @@ bool NODE::search_for_devices()
                 Serial.print(peerSSID);
                 Serial.println(" paired!");
                 relaysAdded++;
-                digitalWrite(LED_PIN_CONNECTION, HIGH);
                 delay(500);
             }
 
