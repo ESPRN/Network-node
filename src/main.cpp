@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <esp_wifi.h>
-#include "../lib/NODE/NODE.h"
+#include <NODE.h>
 
 /*
 	TODO:
@@ -16,6 +16,9 @@
 
 // led pin on message send
 #define LED_PIN_MESSAGE_SND 22
+
+//extra
+#define EXTRA_PIN 33
 
 // default relay coms channel is 7 (from 0 - 14)
 #ifndef CHANNEL
@@ -42,11 +45,7 @@
 	#define MAX_CONNECTIONS 20
 #endif
 
-node_info_s pairedNode;
-
-bool paired = false;
-
-NODE node_relay((uint8_t)CHANNEL, (char*)NODE_ID, (char*)PASS, (bool)ENCRYPTION, (uint8_t)MAX_CONNECTIONS);
+NODE* node_relay;
 
 uint8_t data[4] = { 1, 2, 3, 4 };
 
@@ -65,22 +64,21 @@ void recieveFunc(const uint8_t *mac_addr, const uint8_t *data, int data_len)
 	digitalWrite(LED_PIN_MESSAGE_RCV, !digitalRead(LED_PIN_MESSAGE_RCV));
 }
 
-void updateConnections(node_info_s nodeInfo)
-{
-	pairedNode = nodeInfo;
-	Serial.print("Paired with new node: ");
-	Serial.println(nodeInfo.peerName);
-}
-
 void setup() 
 {
+	Serial.begin(115200);
+
+	delay(1000);
+
+	node_relay = new NODE ((uint8_t)CHANNEL, (char*)NODE_ID, (char*)PASS, (bool)ENCRYPTION, (uint8_t)MAX_CONNECTIONS);
+
 	pinMode(LED_PIN_MESSAGE_RCV, OUTPUT);
 	pinMode(LED_PIN_MESSAGE_SND, OUTPUT);
+	pinMode(EXTRA_PIN, OUTPUT);
 
 	digitalWrite(LED_PIN_MESSAGE_RCV, LOW);
 	digitalWrite(LED_PIN_MESSAGE_SND, LOW);
-
-	Serial.begin(115200);
+	digitalWrite(EXTRA_PIN, LOW);
 
 	Serial.print("Relay node \"");
 	Serial.print(NODE_ID);
@@ -89,20 +87,17 @@ void setup()
 	Serial.printf("Encryption: %3d\n", ENCRYPTION);
 	Serial.printf("Max connections: %3d\n", MAX_CONNECTIONS);
 
-	node_relay.register_send_cb(&sendFunc);
-	Serial.println("Registered send callback");
+	node_relay->register_send_cb(sendFunc);
 
-	node_relay.register_recieve_cb(&recieveFunc);
-	Serial.println("Registered recieve callback");
-
-	node_relay.update_connections_cb(&updateConnections);
-	Serial.println("Registered new connection callback");
+	node_relay->register_recieve_cb(recieveFunc);
+	
 }
 
 void loop() 
 {
-	if(!paired)
-		paired = node_relay.dynamic_pair();
-	if(paired)
-		node_relay.sendData(pairedNode.peerInfo.peer_addr, data, 4);
+	digitalWrite(EXTRA_PIN, !digitalRead(EXTRA_PIN));
+	//bool sent = node_relay->sendData(data, 4);
+	//if(sent != true)
+	//	Serial.println("Error happened while sending");
+	delay(1000);
 }
