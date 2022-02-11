@@ -2,7 +2,7 @@
 
 ROUTER::ROUTER()
 {
-    Serial.println("Hello");
+    
 }
 
 ROUTER::~ROUTER()

@@ -32,10 +32,10 @@ struct node_info_s
 class NODE{
     public:
         // this initialises all the things for esp-now, access point stuff, etc...
-        NODE(uint8_t* primaryKey, const uint8_t channel, const char* SSID, const char* pass, bool encrypt, uint8_t maxConnections);
+        NODE(uint8_t* primaryKey, const uint8_t channel, bool encrypt);
 
         // this also initis just doesnt take the primary key.
-        NODE(const uint8_t channel, const char* SSID, const char* pass, bool encrypt, uint8_t maxConnections);
+        NODE(const uint8_t channel, bool encrypt);
 
         ~NODE();
 
@@ -59,9 +59,6 @@ class NODE{
         uint8_t* pmk; // primary master key
         String macAddress; // this devices mac address
         bool encrypt; // if transmition is encrypted
-        const char* ssid; // ssid
-        const char* pass; // password
-        const uint8_t maxConnections;
         const uint8_t brodcastAddress[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
         esp_now_peer_info_t brodcastPeer;
 };

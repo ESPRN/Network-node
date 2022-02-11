@@ -25,24 +25,9 @@
     #define CHANNEL 7
 #endif
 
-// default relay node id should start with "RELAY_NODE" to get recognised by network
-#ifndef NODE_ID
-	#define NODE_ID "RELAY_NODE_1"
-#endif
-
-// default password for the relay network
-#ifndef PASS
-	#define PASS "DEFAULT_PASS"
-#endif
-
 // default encryption will be turned off
 #ifndef ENCRYPTION
 	#define ENCRYPTION 0
-#endif
-
-// max connections the node can have default is 20 can be lowered if necessary
-#ifndef MAX_CONNECTIONS
-	#define MAX_CONNECTIONS 20
 #endif
 
 NODE* node_relay;
@@ -70,7 +55,7 @@ void setup()
 
 	delay(1000);
 
-	node_relay = new NODE ((uint8_t)CHANNEL, (char*)NODE_ID, (char*)PASS, (bool)ENCRYPTION, (uint8_t)MAX_CONNECTIONS);
+	node_relay = new NODE ((uint8_t)CHANNEL, (bool)ENCRYPTION);
 
 	pinMode(LED_PIN_MESSAGE_RCV, OUTPUT);
 	pinMode(LED_PIN_MESSAGE_SND, OUTPUT);
@@ -96,8 +81,8 @@ void setup()
 void loop() 
 {
 	digitalWrite(EXTRA_PIN, !digitalRead(EXTRA_PIN));
-	//bool sent = node_relay->sendData(data, 4);
-	//if(sent != true)
-	//	Serial.println("Error happened while sending");
+	bool sent = node_relay->sendData(data, 4);
+	if(sent != true)
+		Serial.println("Error happened while sending");
 	delay(1000);
 }

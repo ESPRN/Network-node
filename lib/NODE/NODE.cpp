@@ -1,7 +1,7 @@
 #include "NODE.h"
 
-NODE::NODE(uint8_t* pmk, const uint8_t channel, const char* SSID, const char* pass, bool encrypt = false, uint8_t maxConnections = 20)
-    :channel(channel), pmk(pmk), encrypt(encrypt), ssid(SSID), pass(pass), maxConnections(maxConnections)
+NODE::NODE(uint8_t* pmk, const uint8_t channel, bool encrypt = false)
+    :channel(channel), pmk(pmk), encrypt(encrypt)
 {
     WiFi.mode(WIFI_STA);
 
@@ -22,6 +22,8 @@ NODE::NODE(uint8_t* pmk, const uint8_t channel, const char* SSID, const char* pa
         ESP.restart();
     }
 
+    esp_now_set_pmk(pmk);
+
     memcpy(&brodcastPeer.peer_addr, brodcastAddress, 6);
 
     brodcastPeer.encrypt = false;
@@ -33,8 +35,8 @@ NODE::NODE(uint8_t* pmk, const uint8_t channel, const char* SSID, const char* pa
     esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer);
 }
 
-NODE::NODE(const uint8_t channel, const char* SSID, const char* pass, bool encrypt = false, uint8_t maxConnections = 20)
-    :channel(channel), pmk(0), encrypt(encrypt), ssid(SSID), pass(pass), maxConnections(maxConnections)
+NODE::NODE(const uint8_t channel, bool encrypt = false)
+    :channel(channel), pmk(0), encrypt(encrypt)
 {
     WiFi.mode(WIFI_STA);
 
