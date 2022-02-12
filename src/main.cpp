@@ -66,11 +66,9 @@ void setup()
 	digitalWrite(EXTRA_PIN, LOW);
 
 	Serial.print("Relay node \"");
-	Serial.print(NODE_ID);
 	Serial.println("\" running...");
 	Serial.printf("Channel: %3d\n", CHANNEL);
 	Serial.printf("Encryption: %3d\n", ENCRYPTION);
-	Serial.printf("Max connections: %3d\n", MAX_CONNECTIONS);
 
 	node_relay->register_send_cb(sendFunc);
 
