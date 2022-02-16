@@ -20,34 +20,36 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
-struct stack_node_s
+struct node_s
 {
     // the stack node after the current one
-    stack_node_s* next;
+    struct node_s* next;
     // length of the message (included for no other reason then increasing the speed of the search)
     uint8_t len;
     // value of the stored message to the stack
     char value[250];
     // the stack node proceding the current one
-    stack_node_s* prev;
+    struct node_s* prev;
 };
 
-struct push_stack_s
+struct push_heap_s
 {
     // amount of stack_nodes allocated
     uint8_t count = 0;
     //first in stack
-    stack_node_s* first = NULL;
+    node_s* first = NULL;
     //last in stack
-    stack_node_s* last = NULL;
+    node_s* last = NULL;
 
     // push a new entry to the stack
     void push(const char* value, uint8_t len)
     {
-        if(count == 100)
+        if(count == CACHE_STACK_LIMIT)
         {
-            stack_node_s* snd_last = last->next;
+            node_s* snd_last = last->next;
+            snd_last->prev = NULL;
             free(last);
             last = snd_last;
             count--;
@@ -55,7 +57,7 @@ struct push_stack_s
 
         if(first == NULL)
         {
-            first = (stack_node_s*)malloc(sizeof(stack_node_s));
+            first = (node_s*)malloc(sizeof(node_s));
             first->next = NULL;
             first->prev = NULL;
             first->len = len;
@@ -65,8 +67,8 @@ struct push_stack_s
             return;
         }
 
-        stack_node_s* second = first;
-        first = (stack_node_s*)malloc(sizeof(stack_node_s));
+        node_s* second = first;
+        first = (node_s*)malloc(sizeof(node_s));
         first->next = NULL;
         first->prev = second;
         second->next = first;
@@ -75,10 +77,46 @@ struct push_stack_s
         count++;
     }
 
-    // search the stack for a entry
-    void search_stack(const char* value, uint8_t len)
+    // search the heap for a entry
+    bool find(const char* value, uint8_t len)
     {
-        
+        node_s* front = first;
+        node_s* back = last;
+        for(int i = 0; i < count/2; i++)
+        {
+            if(front->len != len && back->len != len)
+            {
+                front = front->prev;
+                back = back->next;
+                continue;
+            }
+
+            if(strcmp(value, front->value) == 0 || strcmp(value, back->value) == 0)
+            {
+                return true;
+            }
+
+            front = front->prev;
+            back = back->next;
+        }
+
+        return false;
+    }
+
+    ~push_heap_s()
+    {
+        node_s* current = last->next;
+        last = NULL;
+        first = NULL;
+        while(current->next != NULL)
+        {
+            node_s* to_clear = current->prev;
+            current->prev = NULL;
+            free(to_clear);
+            current = current->next;
+        }
+        free(current);
+        count = 0;
     }
 };
 
