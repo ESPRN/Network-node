@@ -18,8 +18,18 @@
 #include <esp_wifi.h>
 #include <esp_now.h>
 #include <esp_err.h>
-#include <string>
+#include <string.h>
 #include <WiFi.h>
+
+// default relay coms channel is 7 (from 0 - 14)
+#ifndef CHANNEL
+    #define CHANNEL 7
+#endif
+
+// default encryption will be turned off
+#ifndef ENCRYPTION
+	#define ENCRYPTION 0
+#endif
 
 struct node_info_s
 {
@@ -29,6 +39,9 @@ struct node_info_s
 
 class NODE{
     public:
+        // default constructor
+        NODE();
+
         // this initialises all the things for esp-now, access point stuff, etc...
         NODE(uint8_t* primaryKey, const uint8_t channel, bool encrypt);
 
@@ -59,5 +72,7 @@ class NODE{
         bool encrypt; // if transmition is encrypted
         const uint8_t brodcastAddress[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
         esp_now_peer_info_t brodcastPeer;
+
+        void init();
 };
 #endif

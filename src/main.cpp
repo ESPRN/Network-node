@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <esp_wifi.h>
-#include <NODE.h>
+#include <MANAGER.h>
 
 /*
 	TODO:
@@ -17,45 +17,15 @@
 // led pin on message send
 #define LED_PIN_MESSAGE_SND 22
 
-//extra
-#define EXTRA_PIN 33
-
-// default relay coms channel is 7 (from 0 - 14)
-#ifndef CHANNEL
-    #define CHANNEL 7
-#endif
-
-// default encryption will be turned off
-#ifndef ENCRYPTION
-	#define ENCRYPTION 0
-#endif
-
-NODE* node_relay;
-
 uint8_t data[4] = { 1, 2, 3, 4 };
 
-void sendFunc(const uint8_t *mac_addr, esp_now_send_status_t status)
-{
-	if(status == esp_now_send_status_t::ESP_NOW_SEND_SUCCESS)
-		Serial.println("send successful");  
-	else
-		Serial.println("send not successful"); 
-	digitalWrite(LED_PIN_MESSAGE_SND, !digitalRead(LED_PIN_MESSAGE_SND));
-}
-
-void recieveFunc(const uint8_t *mac_addr, const uint8_t *data, int data_len)
-{
-	Serial.println("recieved a message");
-	digitalWrite(LED_PIN_MESSAGE_RCV, !digitalRead(LED_PIN_MESSAGE_RCV));
-}
+MANAGER node_manager;
 
 void setup() 
 {
 	Serial.begin(115200);
 
 	delay(1000);
-
-	node_relay = new NODE ((uint8_t)CHANNEL, (bool)ENCRYPTION);
 
 	pinMode(LED_PIN_MESSAGE_RCV, OUTPUT);
 	pinMode(LED_PIN_MESSAGE_SND, OUTPUT);
@@ -65,22 +35,21 @@ void setup()
 	digitalWrite(LED_PIN_MESSAGE_SND, LOW);
 	digitalWrite(EXTRA_PIN, LOW);
 
+	#ifdef DEBUG_MODE
 	Serial.print("Relay node \"");
 	Serial.println("\" running...");
 	Serial.printf("Channel: %3d\n", CHANNEL);
 	Serial.printf("Encryption: %3d\n", ENCRYPTION);
-
-	node_relay->register_send_cb(sendFunc);
-
-	node_relay->register_recieve_cb(recieveFunc);
-	
+	#endif
 }
 
 void loop() 
 {
-	digitalWrite(EXTRA_PIN, !digitalRead(EXTRA_PIN));
-	bool sent = node_relay->sendData(data, 4);
-	if(sent != true)
-		Serial.println("Error happened while sending");
+	bool sent = node_manager.send_message((const uint8_t*)"trolling", 8);
+	if(sent)
+		printf("Sent\n");
+	else
+		printf("Not sent\n");
+
 	delay(1000);
 }

@@ -19,7 +19,7 @@
     #define CACHE_STACK_LIMIT 100
 #endif
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 struct node_s
@@ -37,44 +37,16 @@ struct node_s
 struct push_heap_s
 {
     // amount of stack_nodes allocated
-    uint8_t count = 0;
+    uint8_t count;
     //first in stack
-    node_s* first = NULL;
+    node_s* first;
     //last in stack
-    node_s* last = NULL;
+    node_s* last;
 
-    // push a new entry to the stack
-    void push(const char* value, uint8_t len)
+    push_heap_s()
+        : count(0), first(NULL), last(NULL)
     {
-        if(count == CACHE_STACK_LIMIT)
-        {
-            node_s* snd_last = last->next;
-            snd_last->prev = NULL;
-            free(last);
-            last = snd_last;
-            count--;
-        }
-
-        if(first == NULL)
-        {
-            first = (node_s*)malloc(sizeof(node_s));
-            first->next = NULL;
-            first->prev = NULL;
-            first->len = len;
-            strncpy(first->value, value, len);
-            last = first;
-            count++;
-            return;
-        }
-
-        node_s* second = first;
-        first = (node_s*)malloc(sizeof(node_s));
-        first->next = NULL;
-        first->prev = second;
-        second->next = first;
-        first->len = len;
-        strncpy(first->value, value, len);
-        count++;
+        ;
     }
 
     // search the heap for a entry
@@ -101,6 +73,45 @@ struct push_heap_s
         }
 
         return false;
+    }
+
+    // push a new entry to the stack
+    void push(const char* value, uint8_t len)
+    {
+        if(find(value, len) == true)
+        {
+            return;
+        }
+
+        if(count == CACHE_STACK_LIMIT)
+        {
+            node_s* snd_last = last->next;
+            snd_last->prev = NULL;
+            free(last);
+            last = snd_last;
+            count--;
+        }
+
+        if(first == NULL)
+        {
+            first = (node_s*)malloc(sizeof(node_s));
+            first->next = NULL;
+            first->prev = NULL;
+            first->len = len;
+            strncpy(first->value, value, len);
+            last = first;
+            count++;
+            return;
+        }
+        
+        node_s* second = first;
+        first = (node_s*)malloc(sizeof(node_s));
+        first->next = NULL;
+        first->prev = second;
+        second->next = first;
+        first->len = len;
+        strncpy(first->value, value, len);
+        count++;
     }
 
     ~push_heap_s()

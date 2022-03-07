@@ -1,76 +1,63 @@
 #include "NODE.h"
 
+NODE::NODE()
+    :channel(CHANNEL), pmk(0), encrypt(ENCRYPTION)
+{
+    init();
+}
+
 NODE::NODE(uint8_t* pmk, const uint8_t channel, bool encrypt = false)
     :channel(channel), pmk(pmk), encrypt(encrypt)
 {
-    WiFi.mode(WIFI_STA);
-
-    esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-
-    Serial.printf("Device MAC: %s\n", WiFi.macAddress().c_str());
-
-    WiFi.disconnect();
-
-    if(esp_now_init() == ESP_OK)
-    {
-        Serial.println("EPS-NOW initialised");
-    }
-    else
-    {
-        Serial.println("ESP-NOW initialisation failed... Restarting ESP...");
-
-        ESP.restart();
-    }
-
-    esp_now_set_pmk(pmk);
-
-    memcpy(&brodcastPeer.peer_addr, brodcastAddress, 6);
-
-    brodcastPeer.encrypt = false;
-
-    brodcastPeer.channel = channel;
-
-    brodcastPeer.ifidx = wifi_interface_t::ESP_IF_WIFI_STA;
-
-    esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer);
+    init();
 }
 
 NODE::NODE(const uint8_t channel, bool encrypt = false)
     :channel(channel), pmk(0), encrypt(encrypt)
 {
-    WiFi.mode(WIFI_STA);
-
-    esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-
-    Serial.printf("Device MAC: %s\n", WiFi.macAddress().c_str());
-
-    WiFi.disconnect();
-
-    if(esp_now_init() == ESP_OK)
-    {
-        Serial.println("EPS-NOW initialised");
-    }
-    else
-    {
-        Serial.println("ESP-NOW initialisation failed... Restarting...");
-
-        ESP.restart();
-    }
-
-    memcpy(&brodcastPeer.peer_addr, brodcastAddress, 6);
-
-    brodcastPeer.encrypt = false;
-
-    brodcastPeer.channel = channel;
-
-    brodcastPeer.ifidx = wifi_interface_t::ESP_IF_WIFI_STA;
-
-    esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer);
+    init();
 }
 
 NODE::~NODE()
 {
     ;
+}
+
+void NODE::init()
+{
+    WiFi.mode(WIFI_STA);
+
+    printf("Device MAC: %s\n", WiFi.macAddress().c_str());
+
+    esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+
+    if(esp_now_init() == ESP_OK)
+    {
+        printf("EPS-NOW initialised");
+    }
+    else
+    {
+        printf("ESP-NOW initialisation failed... Restarting ESP...");
+
+        ESP.restart();
+    }
+
+    // esp_now_set_pmk(pmk);
+
+    memcpy(&brodcastPeer.peer_addr, brodcastAddress, 6);
+
+    brodcastPeer.encrypt = encrypt;
+
+    brodcastPeer.channel = channel;
+
+    brodcastPeer.ifidx = wifi_interface_t::ESP_IF_WIFI_STA;
+
+    if(esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer) == ESP_OK)
+    {
+        #ifdef DEBUG_MODE
+        printf("Peer added\n");
+        #endif
+    }
 }
 
 void NODE::register_send_cb(esp_now_send_cb_t sendFunc)
@@ -122,7 +109,12 @@ uint8_t NODE::get_channel()
 bool NODE::sendData(const uint8_t* data, uint8_t dataLen)
 {
     if(!esp_now_is_peer_exist(brodcastAddress))
+    {
+        #ifdef DEBUG_MODE
+        printf("Yo");
+        #endif
         esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer);
+    }
 
     if(dataLen > ESP_NOW_MAX_DATA_LEN) return false;
 
@@ -130,7 +122,7 @@ bool NODE::sendData(const uint8_t* data, uint8_t dataLen)
 
     memcpy(cutData, data, dataLen * sizeof(uint8_t));
 
-    esp_err_t result = esp_now_send(brodcastAddress, cutData, dataLen);
+    esp_err_t result = esp_now_send(nullptr, cutData, dataLen);
 
     free(cutData);
 
