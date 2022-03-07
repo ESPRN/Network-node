@@ -26,14 +26,12 @@
 #include "../NODE/NODE.h"
 #include "../CACHE/CACHE.h"
 
-void send_function(const uint8_t *mac_addr, esp_now_send_status_t status);
-
-void recieve_function(const uint8_t *mac_addr, const uint8_t *data, int data_len);
-
 class MANAGER
 {
     public:
         MANAGER();
+
+        void init(uint8_t channel, bool encryption);
 
         bool send_message(const uint8_t* message, uint8_t len);
 };

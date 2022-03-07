@@ -19,7 +19,7 @@
 
 uint8_t data[4] = { 1, 2, 3, 4 };
 
-MANAGER node_manager;
+MANAGER* node_manager;
 
 void setup() 
 {
@@ -35,9 +35,12 @@ void setup()
 	digitalWrite(LED_PIN_MESSAGE_SND, LOW);
 	digitalWrite(EXTRA_PIN, LOW);
 
+	node_manager = new MANAGER();
+
+	node_manager->init(CHANNEL, ENCRYPTION);
+
 	#ifdef DEBUG_MODE
-	Serial.print("Relay node \"");
-	Serial.println("\" running...");
+	Serial.print("Relay node running.\n");
 	Serial.printf("Channel: %3d\n", CHANNEL);
 	Serial.printf("Encryption: %3d\n", ENCRYPTION);
 	#endif
@@ -45,11 +48,14 @@ void setup()
 
 void loop() 
 {
-	bool sent = node_manager.send_message((const uint8_t*)"trolling", 8);
+	const uint8_t message[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+	bool sent = node_manager->send_message((const uint8_t*)message, 8);
+	#ifdef DEBUG_MODE
 	if(sent)
 		printf("Sent\n");
 	else
 		printf("Not sent\n");
+	#endif
 
 	delay(1000);
 }

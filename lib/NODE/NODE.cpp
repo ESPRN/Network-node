@@ -33,11 +33,11 @@ void NODE::init()
 
     if(esp_now_init() == ESP_OK)
     {
-        printf("EPS-NOW initialised");
+        printf("EPS-NOW initialised\n");
     }
     else
     {
-        printf("ESP-NOW initialisation failed... Restarting ESP...");
+        printf("ESP-NOW initialisation failed... Restarting ESP...\n");
 
         ESP.restart();
     }
@@ -111,7 +111,7 @@ bool NODE::sendData(const uint8_t* data, uint8_t dataLen)
     if(!esp_now_is_peer_exist(brodcastAddress))
     {
         #ifdef DEBUG_MODE
-        printf("Yo");
+        printf("Peer was not added\n");
         #endif
         esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer);
     }
@@ -122,7 +122,7 @@ bool NODE::sendData(const uint8_t* data, uint8_t dataLen)
 
     memcpy(cutData, data, dataLen * sizeof(uint8_t));
 
-    esp_err_t result = esp_now_send(nullptr, cutData, dataLen);
+    esp_err_t result = esp_now_send(brodcastAddress, cutData, dataLen);
 
     free(cutData);
 
