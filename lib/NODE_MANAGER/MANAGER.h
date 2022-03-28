@@ -9,8 +9,20 @@
 #ifndef _MANAGER_
 #define _MANAGER_
 
-#ifndef EXTRA_PIN
-#define EXTRA_PIN 33
+#ifdef DEBUG_MODE
+
+#ifndef DEBUG_PIN_1
+#define DEBUG_PIN_1 33
+#endif
+
+#ifndef DEBUG_PIN_2
+#define DEBUG_PIN_2 18
+#endif
+
+#ifndef DEBUG_PIN_3
+#define DEBUG_PIN_3 2
+#endif
+
 #endif
 
 // default relay coms channel is 7 (from 0 - 14)
@@ -26,14 +38,12 @@
 #include "../NODE/NODE.h"
 #include "../CACHE/CACHE.h"
 
-class MANAGER
-{
-    public:
-        MANAGER();
+extern NODE* node;
 
-        void init(uint8_t channel, bool encryption);
+extern push_heap_s traffic_cache;
 
-        bool send_message(const uint8_t* message, uint8_t len);
-};
+bool manager_send(const uint8_t* message, uint8_t len);
+
+void manager_init(uint8_t channel, bool encryption);
 
 #endif
