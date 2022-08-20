@@ -19,6 +19,10 @@
     #define CACHE_STACK_LIMIT 100
 #endif
 
+#ifdef DEBUG_MODE
+#include <Arduino.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -60,11 +64,17 @@ struct push_heap_s
             {
                 front = front->prev;
                 back = back->next;
+                #ifdef DEBUG_MODE
+                Serial.printf("CACHE: compared lengths do not mach up; value: %s, len: %d\n", value, len);
+                #endif
                 continue;
             }
 
             if(strcmp(value, front->value) == 0 || strcmp(value, back->value) == 0)
             {
+                #ifdef DEBUG_MODE
+                Serial.printf("CACHE: compared values match; value: %s, len: %d\n", value, len);
+                #endif
                 return true;
             }
 
@@ -72,6 +82,9 @@ struct push_heap_s
             back = back->next;
         }
 
+        #ifdef DEBUG_MODE
+        Serial.printf("CACHE: didnt find searched value in cache; value: %s, len: %d\n", value, len);
+        #endif
         return false;
     }
 
@@ -80,6 +93,9 @@ struct push_heap_s
     {
         if(find(value, len) == true)
         {
+            #ifdef DEBUG_MODE
+            Serial.printf("CACHE: found value that was trying to be pushed\n");
+            #endif
             return;
         }
 
@@ -87,9 +103,13 @@ struct push_heap_s
         {
             node_s* snd_last = last->next;
             snd_last->prev = NULL;
+            last->next = NULL;
             free(last);
             last = snd_last;
             count--;
+            #ifdef DEBUG_MODE
+            Serial.printf("CACHE: entry limit reached; C: %d value: %s, len: %d\n", count, value, len);
+            #endif
         }
 
         if(first == NULL)
@@ -101,6 +121,9 @@ struct push_heap_s
             strncpy(first->value, value, len);
             last = first;
             count++;
+            #ifdef DEBUG_MODE
+            Serial.printf("CACHE: first entry; C: %d, value: %s, len %d\n", count, value, len);
+            #endif
             return;
         }
         
@@ -112,6 +135,9 @@ struct push_heap_s
         first->len = len;
         strncpy(first->value, value, len);
         count++;
+        #ifdef DEBUG_MODE
+        Serial.printf("CACHE: entry added; C: %d value: %s, len: %d\n", count, value, len);
+        #endif
     }
 
     ~push_heap_s()

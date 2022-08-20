@@ -50,7 +50,7 @@ void NODE::init()
 
     brodcastPeer.channel = channel;
 
-    brodcastPeer.ifidx = wifi_interface_t::ESP_IF_WIFI_STA;
+    brodcastPeer.ifidx = wifi_interface_t::WIFI_IF_STA;
 
     if(esp_now_add_peer((const esp_now_peer_info_t*)&brodcastPeer) == ESP_OK)
     {

@@ -4,6 +4,8 @@ NODE* node;
 
 push_heap_s traffic_cache;
 
+int j = 0;
+
 bool manager_send(const uint8_t* message, uint8_t len)
 {
     if(traffic_cache.find((const char*)message, len) != true)
@@ -47,12 +49,14 @@ void recieve_function(const uint8_t *mac_addr, const uint8_t *data, int data_len
         {
             digitalWrite(DEBUG_PIN_2, HIGH);
             Serial.println("Message forwarded");
+            j++;
         }
         else
             Serial.println("Sent unsuccessfuly");
         delay(500);
         digitalWrite(DEBUG_PIN_2, LOW);
         #endif
+
         traffic_cache.push((const char*)data, data_len);
     }
     #ifdef DEBUG_MODE
@@ -63,6 +67,7 @@ void recieve_function(const uint8_t *mac_addr, const uint8_t *data, int data_len
         delay(500);
         digitalWrite(DEBUG_PIN_3, LOW);
     }
+    printf("Sent: %d\n", j);
     #endif
 }
 

@@ -42,6 +42,8 @@ extern NODE* node;
 
 extern push_heap_s traffic_cache;
 
+extern int j;
+
 bool manager_send(const uint8_t* message, uint8_t len);
 
 void manager_init(uint8_t channel, bool encryption);
